@@ -39,6 +39,9 @@
                 <g:link controller="crmOrder" action="show" id="${crmOrder.id}">
                     ${fieldValue(bean: crmOrder, field: "number")}
                 </g:link>
+                <g:if test="${crmOrder.syncPublished}">
+                    <i class="icon-warning-sign"></i>
+                </g:if>
             </td>
 
             <td>

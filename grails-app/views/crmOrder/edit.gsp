@@ -103,7 +103,18 @@
 <g:set var="invoiceAddress" value="${crmOrder.invoice}"/>
 <g:set var="deliveryAddress" value="${crmOrder.delivery}"/>
 
-<crm:header title="crmOrder.edit.title" subtitle="${crmOrder.customerName}" args="[entityName, crmOrder]"/>
+<header class="page-header clearfix">
+    <h1>
+        <g:message code="crmOrder.edit.title" args="[entityName, crmOrder]"/>
+        <g:if test="${crmOrder.syncPending}">
+            <i class="icon-share-alt"></i>
+        </g:if>
+        <g:if test="${crmOrder.syncPublished}">
+            <i class="icon-warning-sign"></i>
+        </g:if>
+        <small>${(crmOrder.customerName ?: customerContact)?.encodeAsHTML()}</small>
+    </h1>
+</header>
 
 <g:hasErrors bean="${crmOrder}">
     <crm:alert class="alert-error">

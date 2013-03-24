@@ -22,8 +22,11 @@
 <header class="page-header clearfix">
     <h1>
         <g:message code="crmOrder.show.title" args="[entityName, crmOrder]"/>
-        <g:if test="${crmOrder.event}">
+        <g:if test="${crmOrder.syncPending}">
             <i class="icon-share-alt"></i>
+        </g:if>
+        <g:if test="${crmOrder.syncPublished}">
+            <i class="icon-warning-sign"></i>
         </g:if>
         <small>${(crmOrder.customerName ?: customerContact)?.encodeAsHTML()}</small>
     </h1>
