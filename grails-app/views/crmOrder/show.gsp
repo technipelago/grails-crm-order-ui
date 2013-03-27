@@ -184,7 +184,7 @@
             <g:if test="${crmOrder.paymentType}">
                 <dt><g:message code="crmOrder.paymentType.label" default="Payment Type"/></dt>
 
-                <dd><g:fieldValue bean="${crmOrder}" field="paymentType"/></dd>
+                <dd>${message(code:'crmOrder.paymentType.' + crmOrder.paymentType, default: crmOrder.paymentType)}</dd>
             </g:if>
 
             <g:if test="${crmOrder.paymentId}">
