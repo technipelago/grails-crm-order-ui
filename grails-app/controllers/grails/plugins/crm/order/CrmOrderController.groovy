@@ -204,4 +204,30 @@ class CrmOrderController {
         }
         redirect(action: "index") // error condition, return to search form.
     }
+
+    def export() {
+        def user = crmSecurityService.getUserInfo(crmSecurityService.currentUser?.username)
+        def filename = message(code: 'crmOrder.label', default: 'Order')
+        try {
+            def result = event(for: "crmOrder", topic: "export",
+                    data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
+            if (result?.file) {
+                try {
+                    WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
+                    WebUtils.renderFile(response, result.file)
+                } finally {
+                    result.file.delete()
+                }
+                return null // Success
+            } else {
+                flash.warning = message(code: 'crmOrder.export.nothing.message', default: 'Nothing was exported')
+            }
+        } catch (TimeoutException te) {
+            flash.error = message(code: 'crmOrder.export.timeout.message', default: 'Export did not complete')
+        } catch (Exception e) {
+            log.error("Export event throwed an exception", e)
+            flash.error = message(code: 'crmOrder.export.error.message', default: 'Export failed due to an error', args: [e.message])
+        }
+        redirect(action: "index")
+    }
 }
