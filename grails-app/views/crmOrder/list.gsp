@@ -28,7 +28,7 @@
                             title="${message(code: 'crmOrder.deliveryType.label', default: 'Delivery')}"/>
         <th><g:message code="crmOrder.delivery.label"/></th>
         <crm:sortableColumn property="totalAmount" style="text-align: right;"
-                            title="${message(code: 'crmOrder.totalAmount.label', default: 'Value')}"/>
+                            title="${message(code: 'crmOrder.paymentAmount.label', default: 'Order Value')}"/>
     </tr>
     </thead>
     <tbody>

@@ -6,7 +6,7 @@
         <th><g:message code="crmOrder.orderStatus.label" default="Status"/>
         <th><g:message code="crmOrder.deliveryDate.label" default="Delivery Date"/>
         <th><g:message code="crmOrder.delivery.label" default="Delivery Address"/>
-        <th><g:message code="crmOrder.totalAmount.label" default="Order Value"/>
+        <th><g:message code="crmOrder.paymentAmount.label" default="Order Value"/>
     </tr>
     </thead>
     <tbody>
