@@ -126,7 +126,8 @@
     <div class="span3">
         <dl>
             <dt><g:message code="crmOrder.delivery.label"/></dt>
-            <g:render template="address" model="${[crmContact: deliveryContact, address: deliveryAddress ?: invoiceAddress]}"/>
+            <g:render template="address"
+                      model="${[crmContact: deliveryContact, address: deliveryAddress ?: invoiceAddress]}"/>
 
             <g:if test="${crmOrder.reference3}">
                 <dt><g:message code="crmOrder.reference3.label" default="Reference 3"/></dt>
@@ -150,7 +151,7 @@
 
     <div class="span3">
         <dl>
-            <dt><g:message code="crmOrder.totalAmount.label" default="Total Amount"/></dt>
+            <dt><g:message code="crmOrder.totalAmount.label" default="Amount ex. VAT"/></dt>
 
             <dd><g:formatNumber type="currency" currencyCode="SEK"
                                 number="${crmOrder.totalAmount}"/></dd>
@@ -159,14 +160,19 @@
             <dd><g:formatNumber type="currency" currencyCode="SEK"
                                 number="${crmOrder.totalVat}"/></dd>
 
+            <dt><g:message code="crmOrder.totalAmountVAT.label" default="Amount incl. VAT"/></dt>
+
+            <dd><g:formatNumber type="currency" currencyCode="SEK"
+                                number="${crmOrder.totalAmountVAT}"/></dd>
+
             <g:set var="cent" value="${Math.round(crmOrder.totalAmountVAT).intValue() - crmOrder.totalAmountVAT}"/>
-            <g:if test="${cent > 0.001}">
+            <g:if test="${cent > 0.005 || cent < -0.005}">
                 <dt><g:message code="crmOrder.cent.label" default="Öresutjämning"/></dt>
 
-                <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}" maxFractionDigits="2"/>
+                <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}"/>
                 </dd>
             </g:if>
-            <dt><g:message code="crmOrder.totalAmountVAT.label" default="Totals inc. VAT"/></dt>
+            <dt><g:message code="crmOrder.paymentAmount.label" default="Totals inc. VAT"/></dt>
 
             <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="SEK"
                                                            number="${crmOrder.totalAmountVAT}"
@@ -184,7 +190,7 @@
             <g:if test="${crmOrder.paymentType}">
                 <dt><g:message code="crmOrder.paymentType.label" default="Payment Type"/></dt>
 
-                <dd>${message(code:'crmOrder.paymentType.' + crmOrder.paymentType, default: crmOrder.paymentType)}</dd>
+                <dd>${message(code: 'crmOrder.paymentType.' + crmOrder.paymentType, default: crmOrder.paymentType)}</dd>
             </g:if>
 
             <g:if test="${crmOrder.paymentId}">

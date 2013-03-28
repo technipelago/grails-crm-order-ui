@@ -30,9 +30,10 @@
             <!--
             <td><g:fieldValue bean="${item}" field="comment"/></td>
             -->
-            <td style="white-space: nowrap;"><g:formatNumber number="${item.quantity}"/> ${item.unit}</td>
+            <td style="white-space: nowrap;"><g:formatNumber number="${item.quantity}"
+                                                             maxFractionDigits="2"/> ${item.unit}</td>
             <td style="white-space: nowrap;text-align: right;"><g:formatNumber type="currency" currencyCode="SEK"
-                                                             number="${item.price}"/></td>
+                                                                               number="${item.price}"/></td>
             <td style="white-space: nowrap;text-align:center;">
                 <g:if test="${item.discount}">
                     <g:if test="${item.discount < 1}">
@@ -44,14 +45,15 @@
                     </g:else>
                 </g:if>
             </td>
-            <td style="white-space: nowrap;text-align: right;"><g:formatNumber type="currency" currencyCode="SEK"
-                                                                               number="${item.totalPrice}"/></td>
-            <td style="white-space: nowrap;text-align: center;"><g:formatNumber type="percent"
-                                                                                number="${item.vat}"/></td>
-            <td style="white-space: nowrap;text-align: right;"><strong><g:formatNumber type="currency"
-                                                                                       currencyCode="SEK"
-                                                                                       number="${item.totalPriceVAT}"
-                                                                                       maxFractionDigits="0"/></strong>
+            <td style="white-space: nowrap;text-align: right;">
+                <g:formatNumber type="currency" currencyCode="SEK" number="${item.totalPrice}"/>
+            </td>
+            <td style="white-space: nowrap;text-align: center;">
+                <g:formatNumber type="percent" number="${item.vat}"/>
+            </td>
+            <td style="white-space: nowrap;text-align: right;"><strong>
+                <g:formatNumber type="currency" currencyCode="SEK" number="${item.totalPriceVAT}"
+                                minFractionDigits="2" maxFractionDigits="2"/></strong>
             </td>
         </tr>
         <g:set var="totals" value="${totals + item.totalPrice}"/>
@@ -62,10 +64,12 @@
     <tr>
         <td colspan="5"></td>
         <td style="white-space: nowrap;text-align: right;">
-            <g:formatNumber type="currency" currencyCode="SEK" number="${totals}"/></td>
+            <g:formatNumber type="currency" currencyCode="SEK" number="${totals}" minFractionDigits="2"
+                            maxFractionDigits="2"/></td>
         <td></td>
         <td style="white-space: nowrap;text-align: right;">
-            <strong><g:formatNumber type="currency" currencyCode="SEK" number="${totalsVAT}"/></strong>
+            <strong><g:formatNumber type="currency" currencyCode="SEK" number="${totalsVAT}" minFractionDigits="2"
+                                    maxFractionDigits="2"/></strong>
         </td>
     </tr>
     </tfoot>
