@@ -32,8 +32,8 @@ Grails CRM Order Management User Interface
     def license = "APACHE"
     def organization = [name: "Technipelago AB", url: "http://www.technipelago.se/"]
 
-    def issueManagement = [system: "github", url: "https://github.com/goeh/grails-crm-order-ui/issues"]
-    def scm = [url: "https://github.com/goeh/grails-crm-order-ui"]
+    def issueManagement = [system: "github", url: "https://github.com/technipelago/grails-crm-order-ui/issues"]
+    def scm = [url: "https://github.com/technipelago/grails-crm-order-ui"]
 
     def features = {
         crmOrderUi {
