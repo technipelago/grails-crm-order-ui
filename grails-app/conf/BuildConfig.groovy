@@ -1,16 +1,11 @@
-grails.project.class.dir = "target/classes"
-grails.project.test.class.dir = "target/test-classes"
-grails.project.test.reports.dir = "target/test-reports"
+grails.project.work.dir = "target"
 
 grails.project.repos.default = "crm"
 
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
+    inherits("global") {}
     log "warn"
+    legacyResolve false
     repositories {
         grailsHome()
         mavenRepo "http://labs.technipelago.se/repo/plugins-releases-local/"
@@ -41,5 +36,3 @@ grails.project.dependency.resolution = {
         compile ":selection:latest.integration"
     }
 }
-
-//grails.plugin.location.'crm-order' = "../crm-order"
