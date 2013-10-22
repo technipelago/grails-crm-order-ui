@@ -116,7 +116,7 @@
 
 
         <div class="form-actions">
-            <crm:button visual="primary" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
+            <crm:button visual="success" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
         </div>
 
     </f:with>

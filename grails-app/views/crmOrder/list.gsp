@@ -90,7 +90,7 @@
 
         <g:if test="${crmOrderTotal}">
             <div class="btn-group">
-                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                     <i class="icon-print icon-white"></i>
                     <g:message code="crmOrder.button.print.label" default="Print"/>
                     <span class="caret"></span>

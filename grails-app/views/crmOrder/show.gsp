@@ -215,7 +215,7 @@
         <g:hiddenField name="id" value="${crmOrder?.id}"/>
 
         <crm:button type="link" action="edit" id="${crmOrder?.id}"
-                    group="true" visual="primary" icon="icon-pencil icon-white"
+                    group="true" visual="warning" icon="icon-pencil icon-white"
                     label="crmOrder.button.edit.label" permission="crmOrder:edit">
         </crm:button>
 

@@ -146,7 +146,7 @@
                     <f:field property="orderDate">
                         <div class="inline input-append date"
                              data-date="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.orderDate ?: new Date())}">
-                            <g:textField name="orderDate" class="span8" size="10"
+                            <g:textField name="orderDate" class="span10" size="10"
                                          placeholder="ÅÅÅÅ-MM-DD"
                                          value="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.orderDate)}"/><span
                                 class="add-on"><i
@@ -156,7 +156,7 @@
                     <f:field property="deliveryDate">
                         <div class="inline input-append date"
                              data-date="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.deliveryDate ?: new Date())}">
-                            <g:textField name="deliveryDate" class="span8" size="10"
+                            <g:textField name="deliveryDate" class="span10" size="10"
                                          placeholder="ÅÅÅÅ-MM-DD"
                                          value="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.deliveryDate)}"/><span
                                 class="add-on"><i
@@ -283,7 +283,7 @@
         </div>
 
         <div class="form-actions">
-            <crm:button action="edit" visual="primary" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
+            <crm:button action="edit" visual="warning" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
             <crm:button action="delete" visual="danger" icon="icon-trash icon-white"
                         label="crmOrder.button.delete.label"
                         confirm="crmOrder.button.delete.confirm.message" permission="crmOrder:delete"/>

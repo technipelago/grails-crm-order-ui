@@ -93,7 +93,7 @@
     <div class="form-actions btn-toolbar">
         <crm:selectionMenu visual="primary">
             <crm:button action="list" icon="icon-search icon-white" visual="primary"
-                        label="crmOrder.button.find.label"/>
+                        label="crmOrder.button.search.label"/>
         </crm:selectionMenu>
         <crm:button type="link" group="true" action="create" visual="success" icon="icon-file icon-white"
                     label="crmOrder.button.create.label" permission="crmOrder:create"/>
