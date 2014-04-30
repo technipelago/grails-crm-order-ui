@@ -16,7 +16,7 @@
 
 class CrmOrderUiGrailsPlugin {
     def groupId = "grails.crm"
-    def version = "1.2.0"
+    def version = "1.2.1"
     def grailsVersion = "2.0 > *"
     def dependsOn = [:]
     def pluginExcludes = [
@@ -26,7 +26,7 @@ class CrmOrderUiGrailsPlugin {
     def author = "Göran Ehrsson"
     def authorEmail = "goran@technipelago.se"
     def description = '''\
-Grails CRM Order Management User Interface
+GR8 CRM Order Management User Interface
 '''
     def documentation = "http://grails.org/plugin/crm-order-ui"
     def license = "APACHE"
