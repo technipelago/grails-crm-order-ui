@@ -7,7 +7,7 @@
     <r:require module="datepicker"/>
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            $('.date').datepicker({weekStart: 1});
+            <crm:datepicker/>
         });
     </script>
 </head>

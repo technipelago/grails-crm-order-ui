@@ -7,7 +7,7 @@
     <r:require modules="datepicker,autocomplete"/>
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            $('.date').datepicker({weekStart: 1});
+            <crm:datepicker/>
 
             // Put autocomplete on customer first name.
             $("input[name='customerFirstName']").autocomplete("${createLink(action: 'autocompleteCustomer')}", {
