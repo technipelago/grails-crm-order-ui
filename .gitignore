@@ -1,14 +1,16 @@
 # Ignore Intellij IDEA files
-.idea
-*.iml
+/.idea
+/*.iml
+/cobertura.ser
+/.gradle
 
 # Ignore build artifacts
 target
-tomcat.*
 
 # Ignore packaged plugins
 *.zip
 
+out
 stacktrace.log
 plugin.xml
 0
