@@ -15,20 +15,20 @@
  */
 
 class CrmOrderUiGrailsPlugin {
-    def groupId = "grails.crm"
-    def version = "1.2.1"
+    def groupId = ""
+    def version = "2.0.0"
     def grailsVersion = "2.0 > *"
     def dependsOn = [:]
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
-    def title = "CRM Order Management UI"
+    def title = "GR8 CRM Order Management UI"
     def author = "Göran Ehrsson"
     def authorEmail = "goran@technipelago.se"
     def description = '''\
 GR8 CRM Order Management User Interface
 '''
-    def documentation = "http://grails.org/plugin/crm-order-ui"
+    def documentation = "http://gr8crm.github.io/plugins/crm-order-ui/"
     def license = "APACHE"
     def organization = [name: "Technipelago AB", url: "http://www.technipelago.se/"]
 

@@ -1,19 +1,14 @@
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-grails.project.work.dir = "target"
-
-grails.project.repos.default = "crm"
 
 grails.project.dependency.resolution = {
     inherits("global") {}
     log "warn"
     legacyResolve false
     repositories {
-        grailsHome()
-        mavenRepo "http://labs.technipelago.se/repo/plugins-releases-local/"
-        mavenRepo "http://labs.technipelago.se/repo/crm-releases-local/"
         grailsCentral()
+        mavenCentral()
     }
     dependencies {
     }
@@ -26,16 +21,18 @@ grails.project.dependency.resolution = {
             export = false
         }
         test(":spock:0.7") { export = false }
-        test(":codenarc:0.17") { export = false }
+        test(":codenarc:0.21") { export = false }
 
-        compile "grails.crm:crm-core:latest.integration"
-        runtime "grails.crm:crm-security:latest.integration"
-        runtime "grails.crm:crm-ui-bootstrap:latest.integration"
-        runtime "grails.crm:crm-tags:latest.integration"
-        runtime "grails.crm:crm-order:latest.integration"
+        compile ":crm-core:2.0.2"
+        compile ":crm-security:2.0.0"
+        compile ":crm-ui-bootstrap:2.0.0"
+        compile ":crm-tags:2.0.0"
+        //compile ":crm-order:2.0.0"
 
-        runtime ":decorator:latest.integration"
-        runtime ":user-tag:latest.integration"
-        compile ":selection:latest.integration"
+        compile ":decorator:1.1"
+        compile ":user-tag:0.6"
+        compile ":selection:0.9.7"
     }
 }
+
+grails.plugin.location.'crm-order' = '../crm-order'
