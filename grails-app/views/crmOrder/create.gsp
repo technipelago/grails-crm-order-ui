@@ -57,11 +57,11 @@
                         </div>
                     </f:field>
                     <f:field property="orderStatus">
-                        <g:select name="orderStatus.id" from="${statusList}" value="${crmOrder.orderStatus?.id}"
+                        <g:select name="orderStatus.id" from="${metadata.statusList}" value="${crmOrder.orderStatus?.id}"
                                   optionKey="id" class="span12"/>
                     </f:field>
                     <f:field property="orderType">
-                        <g:select name="orderType.id" from="${orderTypeList}" value="${crmOrder.orderType?.id}"
+                        <g:select name="orderType.id" from="${metadata.orderTypeList}" value="${crmOrder.orderType?.id}"
                                   optionKey="id" class="span12"/>
                     </f:field>
 
@@ -94,7 +94,7 @@
             <div class="span3">
                 <div class="row-fluid">
                     <f:field property="deliveryType">
-                        <g:select name="deliveryType.id" from="${deliveryTypeList}" value="${crmOrder.deliveryType?.id}"
+                        <g:select name="deliveryType.id" from="${metadata.deliveryTypeList}" value="${crmOrder.deliveryType?.id}"
                                   optionKey="id" class="span12"/>
                     </f:field>
                     <f:field property="delivery.addressee" input-class="span12"/>

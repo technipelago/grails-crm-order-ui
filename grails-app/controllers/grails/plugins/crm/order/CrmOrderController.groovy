@@ -19,6 +19,7 @@ class CrmOrderController {
     def selectionService
     def crmOrderService
     def crmContactService
+    def crmTagService
 
     def index() {
         // If any query parameters are specified in the URL, let them override the last query stored in session.
@@ -48,8 +49,9 @@ class CrmOrderController {
         def result
         try {
             result = selectionService.select(uri, params)
-            if (result.size() == 1) {
-                redirect action: "show", id: result.head().ident()
+            if (result.totalCount == 1 && params.view != 'list') {
+                // If we only got one record, show the record immediately.
+                redirect action: "show", params: selectionService.createSelectionParameters(uri) + [id: result.head().ident()]
             } else {
                 [crmOrderList: result, crmOrderTotal: result.totalCount, selection: uri]
             }
@@ -81,9 +83,16 @@ class CrmOrderController {
                 return
             }
         }
-        [crmOrder: crmOrder, statusList: crmOrderService.listOrderStatus(true, crmOrder.orderStatus),
-                orderTypeList: crmOrderService.listOrderType(true, crmOrder.orderType),
-                deliveryTypeList: crmOrderService.listDeliveryType(true, crmOrder.deliveryType)]
+
+        def metadata = [:]
+        metadata.statusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
+        if(!metadata.statusList.contains(crmOrder.orderStatus)) { metadata.statusList << crmOrder.orderStatus}
+        metadata.orderTypeList = crmOrderService.listOrderType(null).findAll { it.enabled }
+        if(!metadata.orderTypeList.contains(crmOrder.orderType)) { metadata.orderTypeList << crmOrder.orderType}
+        metadata.deliveryTypeList = crmOrderService.listDeliveryType(null).findAll { it.enabled }
+        if(!metadata.deliveryTypeList.contains(crmOrder.deliveryType)) { metadata.deliveryTypeList << crmOrder.deliveryType}
+
+        return [crmOrder: crmOrder, metadata: metadata]
     }
 
     def edit(Long id) {
@@ -123,9 +132,15 @@ class CrmOrderController {
             }
         }
 
-        [crmOrder: crmOrder, statusList: crmOrderService.listOrderStatus(true, crmOrder.orderStatus),
-                orderTypeList: crmOrderService.listOrderType(true, crmOrder.orderType),
-                deliveryTypeList: crmOrderService.listDeliveryType(true, crmOrder.deliveryType)]
+        def metadata = [:]
+        metadata.statusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
+        if(!metadata.statusList.contains(crmOrder.orderStatus)) { metadata.statusList << crmOrder.orderStatus}
+        metadata.orderTypeList = crmOrderService.listOrderType(null).findAll { it.enabled }
+        if(!metadata.orderTypeList.contains(crmOrder.orderType)) { metadata.orderTypeList << crmOrder.orderType}
+        metadata.deliveryTypeList = crmOrderService.listDeliveryType(null).findAll { it.enabled }
+        if(!metadata.deliveryTypeList.contains(crmOrder.deliveryType)) { metadata.deliveryTypeList << crmOrder.deliveryType}
+
+        return [crmOrder: crmOrder, metadata: metadata]
     }
 
     def delete(Long id) {
@@ -167,13 +182,40 @@ class CrmOrderController {
             result = crmContactService.list([(a): q], [max: 20]).collect {
                 def name = [it.name, it.email, it.telephone, it.number].findAll { it }.join(', ')
                 def addr = it.address ?: [:]
-                [name, it.id, it.number, it.name, it.firstName, it.lastName, it.email, it.telephone,
-                        addr.address1, addr.address2, addr.address3, addr.postalCode, addr.city]
+                [name, it.id, it.number, it.fullName, it.firstName, it.lastName, it.email, it.telephone,
+                 addr.address1, addr.address2, addr.address3, addr.postalCode, addr.city]
             }
         } else {
             result = []
         }
         WebUtils.noCache(response)
+        render result as JSON
+    }
+
+    def autocompleteOrderStatus() {
+        def result = crmOrderService.listOrderStatus(params.remove('term'), params).collect { it.toString() }
+        WebUtils.defaultCache(response)
+        render result as JSON
+    }
+
+    def autocompleteOrderType() {
+        def result = crmOrderService.listOrderType(params.remove('term'), params).collect { it.toString() }
+        WebUtils.defaultCache(response)
+        render result as JSON
+    }
+
+    def autocompleteDeliveryType() {
+        def result = crmOrderService.listDeliveryType(params.remove('term'), params).collect { it.toString() }
+        WebUtils.defaultCache(response)
+        render result as JSON
+    }
+
+    def autocompleteTags() {
+        params.offset = params.offset ? params.int('offset') : 0
+        if (params.limit && !params.max) params.max = params.limit
+        params.max = Math.min(params.max ? params.int('max') : 25, 100)
+        def result = crmTagService.listDistinctValue(CrmOrder.name, params.remove('q'), params)
+        WebUtils.defaultCache(response)
         render result as JSON
     }
 

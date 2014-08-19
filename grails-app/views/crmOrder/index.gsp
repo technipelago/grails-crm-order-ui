@@ -4,10 +4,46 @@
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'crmOrder.label', default: 'Order')}"/>
     <title><g:message code="crmOrder.find.title" args="[entityName]"/></title>
-    <r:require module="datepicker"/>
+    <r:require modules="datepicker,autocomplete"/>
     <script type="text/javascript">
         jQuery(document).ready(function () {
             <crm:datepicker/>
+
+            $("input[name='status']").autocomplete("${createLink(action: 'autocompleteOrderStatus', params: [max: 20])}", {
+                remoteDataType: 'json',
+                useCache: false,
+                filter: false,
+                minChars: 1,
+                preventDefaultReturn: true,
+                selectFirst: true
+            });
+
+            $("input[name='type']").autocomplete("${createLink(action: 'autocompleteOrderType', params: [max: 20])}", {
+                remoteDataType: 'json',
+                useCache: false,
+                filter: false,
+                minChars: 1,
+                preventDefaultReturn: true,
+                selectFirst: true
+            });
+
+            $("input[name='delivery']").autocomplete("${createLink(action: 'autocompleteDeliveryType', params: [max: 20])}", {
+                remoteDataType: 'json',
+                useCache: false,
+                filter: false,
+                minChars: 1,
+                preventDefaultReturn: true,
+                selectFirst: true
+            });
+
+            $("input[name='tags']").autocomplete("${createLink(action: 'autocompleteTags', params: [max: 20])}", {
+                remoteDataType: 'json',
+                useCache: false,
+                filter: false,
+                minChars: 1,
+                preventDefaultReturn: true,
+                selectFirst: true
+            });
         });
     </script>
 </head>
@@ -22,67 +58,139 @@
 
         <f:with bean="cmd">
             <div class="span4">
-                <f:field property="number" label="crmOrder.number.label"
-                         input-class="input-large" input-autofocus=""
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.number.placeholder', default: '')}"/>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.number.label"/>
+                    </label>
 
-                <f:field property="fromDate" label="crmOrder.query.fromDate.label">
-                    <div class="inline input-append date"
-                         data-date="${cmd.fromDate ?: formatDate(format: 'yyyy-MM-dd', date: new Date())}">
-                        <g:textField name="fromDate" class="input-medium" size="10"
-                                     placeholder="${message(code: 'crmOrderQueryCommand.fromDate.placeholder', default: '')}"
-                                     value="${cmd.fromDate}"/><span
-                            class="add-on"><i class="icon-th"></i></span>
+                    <div class="controls">
+                        <g:textField name="number" value="${cmd.number}" class="span8" autofocus=""/>
                     </div>
-                </f:field>
+                </div>
 
-                <f:field property="toDate" label="crmOrder.query.toDate.label">
-                    <div class="inline input-append date"
-                         data-date="${cmd.toDate ?: formatDate(format: 'yyyy-MM-dd', date: new Date())}">
-                        <g:textField name="toDate" class="input-medium" size="10"
-                                     placeholder="${message(code: 'crmOrderQueryCommand.toDate.placeholder', default: '')}"
-                                     value="${cmd.toDate}"/><span
-                            class="add-on"><i class="icon-th"></i></span>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.query.fromDate.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <div class="inline input-append date"
+                             data-date="${cmd.fromDate ?: formatDate(type: 'date', date: new Date())}">
+                            <g:textField name="fromDate" class="input-medium" size="10"
+                                         value="${cmd.fromDate}"/><span
+                                class="add-on"><i class="icon-th"></i></span>
+                        </div>
                     </div>
-                </f:field>
+                </div>
 
-                <f:field property="campaign" label="crmOrder.campaign.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.campaign.placeholder', default: '')}"/>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.query.toDate.label"/>
+                    </label>
 
+                    <div class="controls">
+                        <div class="inline input-append date"
+                             data-date="${cmd.toDate ?: formatDate(type: 'date', date: new Date())}">
+                            <g:textField name="toDate" class="input-medium" size="10"
+                                         value="${cmd.toDate}"/><span
+                                class="add-on"><i class="icon-th"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.campaign.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="campaign" value="${cmd.campaign}" class="span8"/>
+                    </div>
+                </div>
             </div>
 
             <div class="span4">
-                <f:field property="customer" label="crmOrder.customer.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.customer.placeholder', default: '')}"/>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.customer.label"/>
+                    </label>
 
-                <f:field property="address" label="crmOrder.invoice.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.address.placeholder', default: '')}"/>
+                    <div class="controls">
+                        <g:textField name="customer" value="${cmd.customer}" class="span11"/>
+                    </div>
+                </div>
 
-                <f:field property="email" label="crmOrder.customerEmail.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.email.placeholder', default: '')}"/>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.invoice.label"/>
+                    </label>
 
-                <f:field property="telephone" label="crmOrder.customerTel.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.telephone.placeholder', default: '')}"/>
+                    <div class="controls">
+                        <g:textField name="address" value="${cmd.address}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.customerEmail.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="email" value="${cmd.email}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.customerTel.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="telephone" value="${cmd.telephone}" class="span11"/>
+                    </div>
+                </div>
             </div>
 
             <div class="span4">
-                <f:field property="type" label="crmOrder.orderType.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.type.placeholder', default: '')}"/>
-                <f:field property="status" label="crmOrder.orderStatus.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.status.placeholder', default: '')}"/>
-                <f:field property="delivery" label="crmOrder.deliveryType.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.delivery.placeholder', default: '')}"/>
-                <f:field property="tags" label="crmOrder.tags.label"
-                         input-class="input-large"
-                         input-placeholder="${message(code: 'crmOrderQueryCommand.tags.placeholder', default: '')}"/>
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.orderType.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="type" value="${cmd.type}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.orderStatus.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="status" value="${cmd.status}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.deliveryType.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="delivery" value="${cmd.delivery}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <g:message code="crmOrder.tags.label"/>
+                    </label>
+
+                    <div class="controls">
+                        <g:textField name="tags" value="${cmd.tags}" class="span11"/>
+                    </div>
+                </div>
 
             </div>
 
