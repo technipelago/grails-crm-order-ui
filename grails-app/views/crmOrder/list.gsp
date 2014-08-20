@@ -8,10 +8,8 @@
 
 <body>
 
-<crm:header title="crmOrder.list.title" subtitle="Sökningen resulterade i ${crmOrderTotal} st order"
-            args="[entityName]">
-</crm:header>
-
+<crm:header title="crmContact.list.title" subtitle="crmOrder.totalCount.label"
+            args="[entityName, crmOrderTotal]"/>
 
 <table class="table table-striped">
     <thead>
@@ -36,18 +34,18 @@
         <tr>
 
             <td>
-                <g:link controller="crmOrder" action="show" id="${crmOrder.id}">
+                <select:link controller="crmOrder" action="show" id="${crmOrder.id}" selection="${selection}">
                     ${fieldValue(bean: crmOrder, field: "number")}
-                </g:link>
+                </select:link>
                 <g:if test="${crmOrder.syncPublished}">
                     <i class="icon-warning-sign"></i>
                 </g:if>
             </td>
 
             <td>
-                <g:link controller="crmOrder" action="show" id="${crmOrder.id}">
+                <select:link controller="crmOrder" action="show" id="${crmOrder.id}" selection="${selection}">
                     <g:formatDate type="date" date="${crmOrder.orderDate}"/>
-                </g:link>
+                </select:link>
             </td>
 
             <td>
@@ -89,30 +87,10 @@
         <crm:selectionMenu visual="primary"/>
 
         <g:if test="${crmOrderTotal}">
-            <div class="btn-group">
-                <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                    <i class="icon-print icon-white"></i>
-                    <g:message code="crmOrder.button.print.label" default="Print"/>
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <crm:hasPermission permission="crmOrder:print">
-                        <li>
-                            <select:link action="print" accesskey="p" target="pdf"
-                                         selection="${selection}" params="${[template: 'list']}">
-                                <g:message code="crmOrder.button.print.pdf.label" default="Print to PDF"/>
-                            </select:link>
-                        </li>
-                    </crm:hasPermission>
-                    <crm:hasPermission permission="crmOrder:export">
-                        <li>
-                            <select:link action="export" accesskey="e" selection="${selection}">
-                                <g:message code="crmOrder.button.export.calc.label" default="Print to spreadsheet"/>
-                            </select:link>
-                        </li>
-                    </crm:hasPermission>
-                </ul>
-            </div>
+            <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
+                <i class="icon-print icon-white"></i>
+                <g:message code="crmOrder.button.export.label" default="Print/Export"/>
+            </select:link>
         </g:if>
 
         <div class="btn-group">
