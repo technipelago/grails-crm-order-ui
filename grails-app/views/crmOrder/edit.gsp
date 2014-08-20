@@ -14,6 +14,7 @@
                 remoteDataType: 'json',
                 extraParams: {a: 'firstName'},
                 preventDefaultReturn: true,
+                minChars: 1,
                 selectFirst: true,
                 filterResults: false,
                 matchSubset: false,
@@ -42,6 +43,7 @@
                 remoteDataType: 'json',
                 extraParams: {a: 'lastName'},
                 preventDefaultReturn: true,
+                minChars: 1,
                 selectFirst: true,
                 filterResults: false,
                 matchSubset: false,
@@ -70,6 +72,7 @@
             $("input[name='delivery.addressee']").autocomplete("${createLink(action: 'autocompleteCustomer')}", {
                 remoteDataType: 'json',
                 preventDefaultReturn: true,
+                minChars: 1,
                 selectFirst: true,
                 filterResults: false,
                 matchSubset: false,
@@ -81,7 +84,7 @@
                 onItemSelect: function (item) {
                     var data = item.data;
                     $("input[name='deliveryRef']").val('crmContact@' + data[0]);
-                    if(data[9]) { /* TODO: THIS IS A HACK FOR ONE SWEDISH CUSTOMER! */
+                    if (data[9]) { /* TODO: THIS IS A HACK FOR ONE SWEDISH CUSTOMER! */
                         $("input[name='delivery.addressee']").val(data[9]);
                     } else {
                         $("input[name='delivery.addressee']").val(data[2]);
@@ -129,170 +132,341 @@
 
 <g:form>
 
-    <g:hiddenField name="id" value="${crmOrder.id}"/>
-    <g:hiddenField name="version" value="${crmOrder.version}"/>
+<g:hiddenField name="id" value="${crmOrder.id}"/>
+<g:hiddenField name="version" value="${crmOrder.version}"/>
 
-    <g:hiddenField name="invoice.addressee" value="${invoiceAddress.addressee}"/>
-    <g:hiddenField name="customerNumber" value="${crmOrder.customerNumber}"/>
-    <g:hiddenField name="customerRef" value="${crmOrder.customerRef}"/>
+<g:hiddenField name="invoice.addressee" value="${invoiceAddress?.addressee}"/>
+<g:hiddenField name="customerNumber" value="${crmOrder.customerNumber}"/>
+<g:hiddenField name="customerRef" value="${crmOrder.customerRef}"/>
 
-    <f:with bean="crmOrder">
+<div class="row-fluid">
 
-        <div class="row-fluid">
+<div class="span3">
+    <div class="row-fluid">
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.number.label"/>
+            </label>
 
-            <div class="span3">
-                <div class="row-fluid">
-                    <f:field property="number" input-class="span8" input-autofocus=""/>
-                    <f:field property="orderDate">
-                        <div class="inline input-append date"
-                             data-date="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.orderDate ?: new Date())}">
-                            <g:textField name="orderDate" class="span10" size="10"
-                                         placeholder="ÅÅÅÅ-MM-DD"
-                                         value="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.orderDate)}"/><span
-                                class="add-on"><i
-                                    class="icon-th"></i></span>
-                        </div>
-                    </f:field>
-                    <f:field property="deliveryDate">
-                        <div class="inline input-append date"
-                             data-date="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.deliveryDate ?: new Date())}">
-                            <g:textField name="deliveryDate" class="span10" size="10"
-                                         placeholder="ÅÅÅÅ-MM-DD"
-                                         value="${formatDate(format: 'yyyy-MM-dd', date: crmOrder.deliveryDate)}"/><span
-                                class="add-on"><i
-                                    class="icon-th"></i></span>
-                        </div>
-                    </f:field>
-                    <f:field property="orderStatus">
-                        <g:select name="orderStatus.id" from="${metadata.statusList}" value="${crmOrder.orderStatus?.id}"
-                                  optionKey="id" class="span12"/>
-                    </f:field>
-                    <f:field property="orderType">
-                        <g:select name="orderType.id" from="${metadata.orderTypeList}" value="${crmOrder.orderType?.id}"
-                                  optionKey="id" class="span12"/>
-                    </f:field>
-
-                    <f:field property="reference1" input-class="span12"/>
-                    <f:field property="reference2" input-class="span12"/>
-                    <f:field property="campaign" input-class="span12"/>
-                </div>
+            <div class="controls">
+                <g:textField name="number" value="${crmOrder.number}" class="span8" autofocus=""/>
             </div>
-
-            <div class="span3">
-                <div class="row-fluid">
-                    <f:field property="customerFirstName" label="crmOrder.customerName">
-                        <g:textField name="customerFirstName"
-                                     value="${crmOrder.customerFirstName}"
-                                     class="span6" autocomplete="off" maxlength="80"/>
-                        <g:textField name="customerLastName"
-                                     value="${crmOrder.customerLastName}"
-                                     class="span6" autocomplete="off" maxlength="80"/>
-                    </f:field>
-                    <f:field property="customerCompany" input-class="span12"/>
-                    <f:field property="invoice.address1" input-class="span12"/>
-                    <f:field property="invoice.address2" input-class="span12"/>
-                    <f:field property="invoice.postalCode" label="crmAddress.postalCode.label">
-                        <g:textField name="invoice.postalCode" value="${invoiceAddress?.postalCode}" class="span4"/>
-                        <g:textField name="invoice.city" value="${invoiceAddress?.city}" class="span8"/>
-                    </f:field>
-                    <f:field property="customerTel" input-class="span12"/>
-                    <f:field property="customerEmail" input-class="span12"/>
-                </div>
-            </div>
-
-            <div class="span3">
-                <div class="row-fluid">
-                    <f:field property="deliveryType">
-                        <g:select name="deliveryType.id" from="${metadata.deliveryTypeList}" value="${crmOrder.deliveryType?.id}"
-                                  optionKey="id" class="span12"/>
-                    </f:field>
-                    <f:field property="delivery.addressee" label="crmOrder.delivery.label">
-                        <g:textField name="delivery.addressee"
-                                     value="${crmOrder.delivery?.addressee}"
-                                     class="span12" autocomplete="off" maxlength="80"/>
-                    </f:field>
-                    <f:field property="delivery.address1" input-class="span12"/>
-                    <f:field property="delivery.address2" input-class="span12"/>
-                    <f:field property="delivery.postalCode" label="crmAddress.postalCode.label">
-                        <g:textField name="delivery.postalCode" value="${deliveryAddress?.postalCode}" class="span4"/>
-                        <g:textField name="delivery.city" value="${deliveryAddress?.city}" class="span8"/>
-                    </f:field>
-                    <f:field property="reference3" input-class="span12"/>
-                    <f:field property="reference4" input-class="span12"/>
-                </div>
-            </div>
-
-            <div class="span3">
-                <div class="well" style="margin-top: 20px;">
-                    <dl>
-                        <dt><g:message code="crmOrder.totalAmount.label" default="Total Amount"/></dt>
-
-                        <dd><g:formatNumber type="currency" currencyCode="SEK"
-                                            number="${crmOrder.totalAmount}"/></dd>
-                        <dt><g:message code="crmOrder.totalVat.label" default="VAT"/></dt>
-
-                        <dd><g:formatNumber type="currency" currencyCode="SEK"
-                                            number="${crmOrder.totalVat}"/></dd>
-
-                        <g:set var="cent"
-                               value="${Math.round(crmOrder.totalAmountVAT).intValue() - crmOrder.totalAmountVAT}"/>
-                        <g:if test="${cent > 0.001}">
-                            <dt><g:message code="crmOrder.cent.label" default="Öresutjämning"/></dt>
-
-                            <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}"
-                                                maxFractionDigits="2"/>
-                            </dd>
-                        </g:if>
-                        <dt><g:message code="crmOrder.totalAmountVAT.label" default="Totals inc. VAT"/></dt>
-
-                        <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="SEK"
-                                                                       number="${crmOrder.totalAmountVAT}"
-                                                                       maxFractionDigits="0"/></h3>
-                        </dd>
-
-                        <dt><g:message code="crmOrder.paymentStatus.label" default="Payment Status"/></dt>
-                        <dd>${message(code: 'crmOrder.paymentStatus.' + crmOrder.paymentStatus, default: crmOrder.paymentStatus.toString())}</dd>
-
-                        <g:if test="${crmOrder.paymentDate}">
-                            <dt><g:message code="crmOrder.paymentDate.label" default="Payed Date"/></dt>
-                            <dd><g:formatDate type="date" date="${crmOrder.paymentDate}"/></dd>
-                        </g:if>
-
-                        <g:if test="${crmOrder.paymentType}">
-                            <dt><g:message code="crmOrder.paymentType.label" default="Payment Type"/></dt>
-
-                            <dd><g:fieldValue bean="${crmOrder}" field="paymentType"/></dd>
-                        </g:if>
-
-                        <g:if test="${crmOrder.paymentId}">
-                            <dt><g:message code="crmOrder.paymentId.label" default="Payment ID"/></dt>
-
-                            <dd><g:fieldValue bean="${crmOrder}" field="paymentId"/></dd>
-                        </g:if>
-
-                        <g:if test="${crmOrder.payedAmount}">
-                            <dt><g:message code="crmOrder.payedAmount.label" default="Payed Amount"/></dt>
-
-                            <dd><g:formatNumber type="currency" currencyCode="SEK"
-                                                number="${crmOrder.payedAmount}"/></dd>
-                        </g:if>
-                    </dl>
-                </div>
-            </div>
-
         </div>
 
-        <div class="form-actions">
-            <crm:button action="edit" visual="warning" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
-            <crm:button action="delete" visual="danger" icon="icon-trash icon-white"
-                        label="crmOrder.button.delete.label"
-                        confirm="crmOrder.button.delete.confirm.message" permission="crmOrder:delete"/>
-            <crm:button type="link" action="show" id="${crmOrder.id}" icon="icon-remove"
-                        label="crmOrder.button.cancel.label"
-                        accesskey="b"/>
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.orderDate.label"/>
+            </label>
+
+            <div class="controls">
+                <div class="inline input-append date"
+                     data-date="${formatDate(type: 'date', date: crmOrder.orderDate ?: new Date())}">
+                    <g:textField name="orderDate" class="span10" size="10"
+                                 value="${formatDate(type: 'date', date: crmOrder.orderDate)}"/><span
+                        class="add-on"><i
+                            class="icon-th"></i></span>
+                </div>
+            </div>
         </div>
 
-    </f:with>
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.deliveryDate.label"/>
+            </label>
+
+            <div class="controls">
+                <div class="inline input-append date"
+                     data-date="${formatDate(type: 'date', date: crmOrder.deliveryDate ?: new Date())}">
+                    <g:textField name="deliveryDate" class="span10" size="10"
+                                 value="${formatDate(type: 'date', date: crmOrder.deliveryDate)}"/><span
+                        class="add-on"><i
+                            class="icon-th"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.orderStatus.label"/>
+            </label>
+
+            <div class="controls">
+                <g:select name="orderStatus.id" from="${metadata.orderStatusList}"
+                          value="${crmOrder.orderStatus?.id}"
+                          optionKey="id" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.orderType.label"/>
+            </label>
+
+            <div class="controls">
+                <g:select name="orderType.id" from="${metadata.orderTypeList}"
+                          value="${crmOrder.orderType?.id}"
+                          optionKey="id" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.reference1.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="reference1" value="${crmOrder.reference1}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.reference2.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="reference2" value="${crmOrder.reference2}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.campaign.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="campaign" value="${crmOrder.campaign}" class="span12"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="span3">
+    <div class="row-fluid">
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.customerName.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="customerFirstName" value="${crmOrder.customerFirstName}" class="span5"
+                             autocomplete="off"/>
+                <g:textField name="customerLastName" value="${crmOrder.customerLastName}" class="span7"
+                             autocomplete="off"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.customerCompany.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="customerCompany" value="${crmOrder.customerCompany}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.invoice.address1.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="invoice.address1" value="${invoiceAddress?.address1}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.invoice.address2.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="invoice.address2" value="${invoiceAddress?.address2}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmAddress.postalAddress.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="invoice.postalCode" value="${invoiceAddress?.postalCode}" class="span4"/>
+                <g:textField name="invoice.city" value="${invoiceAddress?.city}" class="span8"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.customerTel.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="customerTel" value="${crmOrder.customerTel}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.customerEmail.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="customerEmail" value="${crmOrder.customerEmail}" class="span12"/>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="span3">
+    <div class="row-fluid">
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.deliveryType.label"/>
+            </label>
+
+            <div class="controls">
+                <g:select name="deliveryType.id" from="${metadata.deliveryTypeList}"
+                          value="${crmOrder.deliveryType?.id}"
+                          optionKey="id" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.delivery.addressee.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="delivery.addressee" value="${deliveryAddress?.addressee}"
+                             class="span12" autocomplete="off"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.delivery.address1.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="delivery.address1" value="${deliveryAddress?.address1}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.delivery.address2.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="delivery.address2" value="${deliveryAddress?.address2}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmAddress.postalAddress.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="delivery.postalCode" value="${deliveryAddress?.postalCode}" class="span4"/>
+                <g:textField name="delivery.city" value="${deliveryAddress?.city}" class="span8"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.reference3.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="reference3" value="${crmOrder.reference3}" class="span12"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmOrder.reference4.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="reference4" value="${crmOrder.reference4}" class="span12"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="span3">
+    <div class="well" style="margin-top: 20px;">
+        <dl>
+            <dt><g:message code="crmOrder.totalAmount.label" default="Total Amount"/></dt>
+
+            <dd><g:formatNumber type="currency" currencyCode="SEK"
+                                number="${crmOrder.totalAmount}"/></dd>
+            <dt><g:message code="crmOrder.totalVat.label" default="VAT"/></dt>
+
+            <dd><g:formatNumber type="currency" currencyCode="SEK"
+                                number="${crmOrder.totalVat}"/></dd>
+
+            <g:set var="cent"
+                   value="${Math.round(crmOrder.totalAmountVAT).intValue() - crmOrder.totalAmountVAT}"/>
+            <g:if test="${cent > 0.001}">
+                <dt><g:message code="crmOrder.cent.label" default="Öresutjämning"/></dt>
+
+                <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}"
+                                    maxFractionDigits="2"/>
+                </dd>
+            </g:if>
+            <dt><g:message code="crmOrder.totalAmountVAT.label" default="Totals inc. VAT"/></dt>
+
+            <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="SEK"
+                                                           number="${crmOrder.totalAmountVAT}"
+                                                           maxFractionDigits="0"/></h3>
+            </dd>
+
+            <dt><g:message code="crmOrder.paymentStatus.label" default="Payment Status"/></dt>
+            <dd>${message(code: 'crmOrder.paymentStatus.' + crmOrder.paymentStatus, default: crmOrder.paymentStatus.toString())}</dd>
+
+            <g:if test="${crmOrder.paymentDate}">
+                <dt><g:message code="crmOrder.paymentDate.label" default="Payed Date"/></dt>
+                <dd><g:formatDate type="date" date="${crmOrder.paymentDate}"/></dd>
+            </g:if>
+
+            <g:if test="${crmOrder.paymentType}">
+                <dt><g:message code="crmOrder.paymentType.label" default="Payment Type"/></dt>
+
+                <dd><g:fieldValue bean="${crmOrder}" field="paymentType"/></dd>
+            </g:if>
+
+            <g:if test="${crmOrder.paymentId}">
+                <dt><g:message code="crmOrder.paymentId.label" default="Payment ID"/></dt>
+
+                <dd><g:fieldValue bean="${crmOrder}" field="paymentId"/></dd>
+            </g:if>
+
+            <g:if test="${crmOrder.payedAmount}">
+                <dt><g:message code="crmOrder.payedAmount.label" default="Payed Amount"/></dt>
+
+                <dd><g:formatNumber type="currency" currencyCode="SEK"
+                                    number="${crmOrder.payedAmount}"/></dd>
+            </g:if>
+        </dl>
+    </div>
+</div>
+
+</div>
+
+<div class="form-actions">
+    <crm:button action="edit" visual="warning" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
+    <crm:button action="delete" visual="danger" icon="icon-trash icon-white"
+                label="crmOrder.button.delete.label"
+                confirm="crmOrder.button.delete.confirm.message" permission="crmOrder:delete"/>
+    <crm:button type="link" action="show" id="${crmOrder.id}" icon="icon-remove"
+                label="crmOrder.button.cancel.label"
+                accesskey="b"/>
+</div>
 
 </g:form>
 
