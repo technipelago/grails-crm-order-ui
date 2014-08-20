@@ -87,10 +87,12 @@
         <crm:selectionMenu visual="primary"/>
 
         <g:if test="${crmOrderTotal}">
-            <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
-                <i class="icon-print icon-white"></i>
-                <g:message code="crmOrder.button.export.label" default="Print/Export"/>
-            </select:link>
+            <div class="btn-group">
+                <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
+                    <i class="icon-print icon-white"></i>
+                    <g:message code="crmOrder.button.export.label" default="Print/Export"/>
+                </select:link>
+            </div>
         </g:if>
 
         <div class="btn-group">

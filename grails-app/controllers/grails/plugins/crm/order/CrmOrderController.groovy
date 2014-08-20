@@ -21,6 +21,7 @@ class CrmOrderController {
     def crmOrderService
     def crmContactService
     def crmTagService
+    def userTagService
 
     def index() {
         // If any query parameters are specified in the URL, let them override the last query stored in session.
@@ -184,6 +185,64 @@ class CrmOrderController {
         }
     }
 
+    def export() {
+        def user = crmSecurityService.getUserInfo()
+        def namespace = params.namespace ?: 'crmOrder'
+        if (request.post) {
+            def filename = message(code: 'crmOrder.label', default: 'Order')
+            try {
+                def topic = params.topic ?: 'export'
+                def result = event(for: namespace, topic: topic,
+                        data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
+                if (result?.file) {
+                    try {
+                        WebUtils.inlineHeaders(response, result.contentType, result.filename ?: namespace)
+                        WebUtils.renderFile(response, result.file)
+                    } finally {
+                        result.file.delete()
+                    }
+                    return null // Success
+                } else {
+                    flash.warning = message(code: 'crmOrder.export.nothing.message', default: 'Nothing was exported')
+                }
+            } catch (TimeoutException te) {
+                flash.error = message(code: 'crmOrder.export.timeout.message', default: 'Export did not complete')
+            } catch (Exception e) {
+                log.error("Export event throwed an exception", e)
+                flash.error = message(code: 'crmOrder.export.error.message', default: 'Export failed due to an error', args: [e.message])
+            }
+            redirect(action: "index")
+        } else {
+            def uri = params.getSelectionURI()
+            def layouts = event(for: namespace, topic: (params.topic ?: 'exportLayout'),
+                    data: [tenant: TenantUtils.tenant, username: user.username, uri: uri]).waitFor(10000)?.values?.flatten()
+            [layouts: layouts, selection: uri]
+        }
+    }
+
+    def createFavorite(Long id) {
+        def crmOrder = crmOrderService.getOrder(id)
+        if (!crmOrder) {
+            flash.error = message(code: 'crmOrder.not.found.message', args: [message(code: 'crmOrder.label', default: 'Order'), id])
+            redirect action: 'index'
+            return
+        }
+        userTagService.tag(crmOrder, grailsApplication.config.crm.tag.favorite, crmSecurityService.currentUser?.username, TenantUtils.tenant)
+
+        redirect(action: 'show', id: params.id)
+    }
+
+    def deleteFavorite(Long id) {
+        def crmOrder = crmOrderService.getOrder(id)
+        if (!crmOrder) {
+            flash.error = message(code: 'crmOrder.not.found.message', args: [message(code: 'crmOrder.label', default: 'Order'), id])
+            redirect action: 'index'
+            return
+        }
+        userTagService.untag(crmOrder, grailsApplication.config.crm.tag.favorite, crmSecurityService.currentUser?.username, TenantUtils.tenant)
+        redirect(action: 'show', id: id)
+    }
+
     def autocompleteCustomer(String a, String q) {
         def result
         if (crmContactService != null) {
@@ -230,57 +289,4 @@ class CrmOrderController {
         render result as JSON
     }
 
-    def print(Long id, String template) {
-        def user = crmSecurityService.currentUser
-        try {
-            def tempFile = event(for: "crmOrder", topic: "print", data: params + [user: user, tenant: TenantUtils.tenant]).waitFor(60000)?.value
-            if (tempFile instanceof File) {
-                try {
-                    def filename = message(code: 'crmOrder.label', default: template ?: 'order') + '.pdf'
-                    WebUtils.inlineHeaders(response, "application/pdf", filename)
-                    WebUtils.renderFile(response, tempFile)
-                } finally {
-                    tempFile.delete()
-                }
-                return null // Success
-            } else if (tempFile) {
-                log.error("Print event returned an unexpected value: $tempFile (${tempFile.class.name})")
-                flash.error = message(code: 'crmOrder.print.error.message', default: 'Printing failed due to an error', args: [tempFile.class.name])
-            } else {
-                flash.warning = message(code: 'crmOrder.print.nothing.message', default: 'Nothing was printed')
-            }
-        } catch (TimeoutException te) {
-            flash.error = message(code: 'crmOrder.print.timeout.message', default: 'Printing did not complete')
-        } catch (Exception e) {
-            log.error("Print event throwed an exception", e)
-            flash.error = message(code: 'crmOrder.print.error.message', default: 'Printing failed due to an error', args: [e.message])
-        }
-        redirect(action: "index") // error condition, return to search form.
-    }
-
-    def export() {
-        def user = crmSecurityService.getUserInfo(crmSecurityService.currentUser?.username)
-        def filename = message(code: 'crmOrder.label', default: 'Order')
-        try {
-            def result = event(for: "crmOrder", topic: "export",
-                    data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
-            if (result?.file) {
-                try {
-                    WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
-                    WebUtils.renderFile(response, result.file)
-                } finally {
-                    result.file.delete()
-                }
-                return null // Success
-            } else {
-                flash.warning = message(code: 'crmOrder.export.nothing.message', default: 'Nothing was exported')
-            }
-        } catch (TimeoutException te) {
-            flash.error = message(code: 'crmOrder.export.timeout.message', default: 'Export did not complete')
-        } catch (Exception e) {
-            log.error("Export event throwed an exception", e)
-            flash.error = message(code: 'crmOrder.export.error.message', default: 'Export failed due to an error', args: [e.message])
-        }
-        redirect(action: "index")
-    }
 }

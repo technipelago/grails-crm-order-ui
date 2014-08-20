@@ -22,6 +22,9 @@
 <header class="page-header clearfix">
     <h1>
         <g:message code="crmOrder.show.title" args="[entityName, crmOrder]"/>
+        <crm:user>
+            <crm:favoriteIcon bean="${crmOrder}"/>
+        </crm:user>
         <g:if test="${crmOrder.syncPending}">
             <i class="icon-share-alt"></i>
         </g:if>
@@ -212,50 +215,66 @@
 
 <div class="form-actions btn-toolbar">
     <g:form>
-        <g:hiddenField name="id" value="${crmOrder?.id}"/>
+        <g:hiddenField name="id" value="${crmOrder.id}"/>
+
+        <crm:selectionMenu location="crmOrder" visual="primary">
+            <crm:button type="link" controller="crmOrder" action="index"
+                        visual="primary" icon="icon-search icon-white"
+                        label="crmOrder.find.label"/>
+        </crm:selectionMenu>
 
         <crm:button type="link" action="edit" id="${crmOrder?.id}"
                     group="true" visual="warning" icon="icon-pencil icon-white"
                     label="crmOrder.button.edit.label" permission="crmOrder:edit">
         </crm:button>
 
-        <div class="btn-group">
-            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                <i class="icon-print icon-white"></i>
-                <g:message code="crmOrder.button.print.label" default="Print"/>
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <crm:hasPermission permission="crmOrder:print">
-                    <li>
-                        <g:link action="print" accesskey="p" target="pdf"
-                                params="${[id: crmOrder.id, template: 'confirm']}">
-                            <g:message code="crmOrder.button.print.confirm.label"
-                                       default="Order Confirmation"/>
-                        </g:link>
-                    </li>
-                    <li>
-                        <g:link action="print" target="pdf"
-                                params="${[id: crmOrder.id, template: 'delivery']}">
-                            <g:message code="crmOrder.button.print.delivery.label"
-                                       default="Delivery Notification"/>
-                        </g:link>
-                    </li>
-                    <li>
-                        <g:link action="print" target="pdf"
-                                params="${[id: crmOrder.id, template: 'invoice']}">
-                            <g:message code="crmOrder.button.print.invoice.label" default="Invoice"/>
-                        </g:link>
-                    </li>
-                </crm:hasPermission>
-            </ul>
-        </div>
-
         <crm:button type="link" action="create"
                     group="true" visual="success" icon="icon-file icon-white"
                     label="crmOrder.button.create.label"
                     title="crmOrder.button.create.help"
                     permission="crmOrder:create"/>
+
+        <div class="btn-group">
+            <select:link action="export" accesskey="p" params="${[namespace:'crmOrder']}" selection="${new URI('bean://crmOrderService/list?id=' + crmOrder.id)}" class="btn btn-info">
+                <i class="icon-print icon-white"></i>
+                <g:message code="crmOrder.button.export.label" default="Print/Export"/>
+            </select:link>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                <i class="icon-info-sign icon-white"></i>
+                <g:message code="crmOrder.button.view.label" default="View"/>
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <g:if test="${selection}">
+                    <li>
+                        <select:link action="list" selection="${selection}" params="${[view: 'list']}">
+                            <g:message code="crmOrder.show.result.label" default="Show result in list view"/>
+                        </select:link>
+                    </li>
+                </g:if>
+                <crm:hasPermission permission="crmOrder:createFavorite">
+                    <crm:user>
+                        <g:if test="${crmOrder.isUserTagged('favorite', username)}">
+                            <li>
+                                <g:link action="deleteFavorite" id="${crmOrder.id}"
+                                        title="${message(code: 'crmOrder.button.favorite.delete.help', args: [crmOrder])}">
+                                    <g:message code="crmContact.button.favorite.delete.label"/></g:link>
+                            </li>
+                        </g:if>
+                        <g:else>
+                            <li>
+                                <g:link action="createFavorite" id="${crmOrder.id}"
+                                        title="${message(code: 'crmOrder.button.favorite.create.help', args: [crmOrder])}">
+                                    <g:message code="crmOrder.button.favorite.create.label"/></g:link>
+                            </li>
+                        </g:else>
+                    </crm:user>
+                </crm:hasPermission>
+            </ul>
+        </div>
+
     </g:form>
 </div>
 
