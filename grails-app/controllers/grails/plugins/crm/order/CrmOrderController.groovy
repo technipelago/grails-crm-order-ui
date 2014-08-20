@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.plugins.crm.core.CrmEmbeddedAddress
 import grails.plugins.crm.core.TenantUtils
 import grails.plugins.crm.core.WebUtils
+import grails.plugins.crm.core.CrmValidationException
 import org.springframework.dao.DataIntegrityViolationException
 
 import java.util.concurrent.TimeoutException
@@ -67,30 +68,40 @@ class CrmOrderController {
     }
 
     def create() {
-        def crmOrder = new CrmOrder(invoice: new CrmEmbeddedAddress(), delivery: new CrmEmbeddedAddress())
+        def crmOrder = new CrmOrder(invoice: new CrmEmbeddedAddress(), delivery: new CrmEmbeddedAddress(), orderDate: new java.sql.Date(System.currentTimeMillis()))
 
-        bindData(crmOrder, params, [include: CrmOrder.BIND_WHITELIST])
-        bindData(crmOrder.invoice, params, 'invoice')
-        bindData(crmOrder.delivery, params, 'delivery')
-
-        if (request.method == "POST") {
-            if (grailsApplication.config.crm.order.changeEvent) {
-                crmOrder.event = CrmOrder.EVENT_CHANGED
+        if (request.post) {
+            try {
+                crmOrder = crmOrderService.save(crmOrder, params)
+            } catch(CrmValidationException e) {
+                crmOrder = e[0]
             }
-            if (crmOrder.save(flush: true)) {
+            if (!crmOrder.hasErrors()) {
+                def currentUser = crmSecurityService.currentUser
+                event(for: "crmOrder", topic: "created", fork: false, data: [id: crmOrder.id, tenant: crmOrder.tenantId, user: currentUser?.username])
                 flash.success = message(code: 'crmOrder.created.message', args: [message(code: 'crmOrder.label', default: 'Order'), crmOrder.toString()])
                 redirect(action: "show", id: crmOrder.id)
                 return
             }
+        } else {
+            bindData(crmOrder, params, [include: CrmOrder.BIND_WHITELIST])
+            bindData(crmOrder.invoice, params, 'invoice')
+            bindData(crmOrder.delivery, params, 'delivery')
         }
 
         def metadata = [:]
-        metadata.statusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
-        if(!metadata.statusList.contains(crmOrder.orderStatus)) { metadata.statusList << crmOrder.orderStatus}
+        metadata.orderStatusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
+        if (crmOrder.orderStatus && !metadata.orderStatusList.contains(crmOrder.orderStatus)) {
+            metadata.orderStatusList << crmOrder.orderStatus
+        }
         metadata.orderTypeList = crmOrderService.listOrderType(null).findAll { it.enabled }
-        if(!metadata.orderTypeList.contains(crmOrder.orderType)) { metadata.orderTypeList << crmOrder.orderType}
+        if (crmOrder.orderType && !metadata.orderTypeList.contains(crmOrder.orderType)) {
+            metadata.orderTypeList << crmOrder.orderType
+        }
         metadata.deliveryTypeList = crmOrderService.listDeliveryType(null).findAll { it.enabled }
-        if(!metadata.deliveryTypeList.contains(crmOrder.deliveryType)) { metadata.deliveryTypeList << crmOrder.deliveryType}
+        if (crmOrder.deliveryType && !metadata.deliveryTypeList.contains(crmOrder.deliveryType)) {
+            metadata.deliveryTypeList << crmOrder.deliveryType
+        }
 
         return [crmOrder: crmOrder, metadata: metadata]
     }
@@ -102,7 +113,7 @@ class CrmOrderController {
             redirect(action: "index")
             return
         }
-        if (request.method == "POST") {
+        if (request.post) {
             if (params.int('version') != null && crmOrder.version > params.int('version')) {
                 crmOrder.errors.rejectValue("version", "crmOrder.optimistic.locking.failure",
                         [message(code: 'crmOrder.label', default: 'Order')] as Object[],
@@ -110,21 +121,14 @@ class CrmOrderController {
             } else {
                 def oldStatus = crmOrder.orderStatus
 
-                if (!crmOrder.invoice) crmOrder.invoice = new CrmEmbeddedAddress()
-                if (!crmOrder.delivery) crmOrder.delivery = new CrmEmbeddedAddress()
-
-                bindData(crmOrder, params, [include: CrmOrder.BIND_WHITELIST])
-                bindData(crmOrder.invoice, params, 'invoice')
-                bindData(crmOrder.delivery, params, 'delivery')
-
-                if (grailsApplication.config.crm.order.changeEvent) {
-                    def newStatus = crmOrder.orderStatus
-                    if (oldStatus != newStatus) {
-                        crmOrder.event = CrmOrder.EVENT_CHANGED
-                    }
+                try {
+                    crmOrder = crmOrderService.save(crmOrder, params)
+                } catch(CrmValidationException e) {
+                    crmOrder = e[0]
                 }
-
-                if (crmOrder.save(flush: true)) {
+                if (!crmOrder.hasErrors()) {
+                    def currentUser = crmSecurityService.currentUser
+                    event(for: "crmOrder", topic: "updated", fork: false, data: [id: crmOrder.id, tenant: crmOrder.tenantId, user: currentUser?.username])
                     flash.success = message(code: 'crmOrder.updated.message', args: [message(code: 'crmOrder.label', default: 'Order'), crmOrder.toString()])
                     redirect(action: "show", id: crmOrder.id)
                     return
@@ -133,12 +137,18 @@ class CrmOrderController {
         }
 
         def metadata = [:]
-        metadata.statusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
-        if(!metadata.statusList.contains(crmOrder.orderStatus)) { metadata.statusList << crmOrder.orderStatus}
+        metadata.orderStatusList = crmOrderService.listOrderStatus(null).findAll { it.enabled }
+        if (crmOrder.orderStatus && !metadata.orderStatusList.contains(crmOrder.orderStatus)) {
+            metadata.orderStatusList << crmOrder.orderStatus
+        }
         metadata.orderTypeList = crmOrderService.listOrderType(null).findAll { it.enabled }
-        if(!metadata.orderTypeList.contains(crmOrder.orderType)) { metadata.orderTypeList << crmOrder.orderType}
+        if (crmOrder.orderType && !metadata.orderTypeList.contains(crmOrder.orderType)) {
+            metadata.orderTypeList << crmOrder.orderType
+        }
         metadata.deliveryTypeList = crmOrderService.listDeliveryType(null).findAll { it.enabled }
-        if(!metadata.deliveryTypeList.contains(crmOrder.deliveryType)) { metadata.deliveryTypeList << crmOrder.deliveryType}
+        if (crmOrder.deliveryType && !metadata.deliveryTypeList.contains(crmOrder.deliveryType)) {
+            metadata.deliveryTypeList << crmOrder.deliveryType
+        }
 
         return [crmOrder: crmOrder, metadata: metadata]
     }
@@ -166,7 +176,8 @@ class CrmOrderController {
     def show(Long id) {
         def crmOrder = CrmOrder.findByIdAndTenantId(id, TenantUtils.tenant)
         if (crmOrder) {
-            return [crmOrder: crmOrder, customerContact: crmOrder.getCustomer(), deliveryContact: crmOrder.getDeliveryContact()]
+            return [crmOrder : crmOrder, customerContact: crmOrder.getCustomer(), deliveryContact: crmOrder.getDeliveryContact(),
+                    selection: params.getSelectionURI()]
         } else {
             flash.error = message(code: 'crmOrder.not.found.message', args: [message(code: 'crmOrder.label', default: 'Order'), id])
             redirect(action: "index")
