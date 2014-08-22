@@ -6,6 +6,15 @@
     <title><g:message code="crmOrder.edit.title" args="[entityName, crmOrder]"/></title>
     <r:require modules="datepicker,autocomplete"/>
     <script type="text/javascript">
+        function deleteItem(source, id) {
+            if(id) {
+                $.post("${createLink(action: 'deleteItem')}", {id: id}, function(data) {
+                    deleteTableRow(source);
+                });
+            } else {
+                deleteTableRow(source);
+            }
+        }
         jQuery(document).ready(function () {
             <crm:datepicker/>
 
@@ -97,6 +106,16 @@
                     $("input[name='reference4']").val(data[5]); // Email
                 }
             });
+
+            $("#btn-add-item").click(function(ev) {
+                $.get("${createLink(action: 'addItem', id: crmOrder.id)}", function(markup) {
+                    var table = $("#item-list");
+                    var html = $(markup);
+                    $("tbody", table).append(html);
+                    table.renumberInputNames();
+                    $(":input:enabled:first", html).focus();
+                });
+            });
         });
     </script>
 </head>
@@ -115,7 +134,7 @@
         <g:if test="${crmOrder.syncPublished}">
             <i class="icon-warning-sign"></i>
         </g:if>
-        <small>${(crmOrder.customerName ?: customerContact)?.encodeAsHTML()}</small>
+        <small>${crmOrder.customerName?.encodeAsHTML()}</small>
     </h1>
 </header>
 
@@ -130,7 +149,7 @@
     </crm:alert>
 </g:hasErrors>
 
-<g:form>
+<g:form action="edit">
 
 <g:hiddenField name="id" value="${crmOrder.id}"/>
 <g:hiddenField name="version" value="${crmOrder.version}"/>
@@ -138,6 +157,23 @@
 <g:hiddenField name="invoice.addressee" value="${invoiceAddress?.addressee}"/>
 <g:hiddenField name="customerNumber" value="${crmOrder.customerNumber}"/>
 <g:hiddenField name="customerRef" value="${crmOrder.customerRef}"/>
+
+<g:hiddenField name="delete.prices" value=""/>
+<g:hiddenField name="delete.compositions" value=""/>
+
+<div class="tabbable">
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmOrder.tab.main.label"/></a>
+    </li>
+    <li><a href="#items" data-toggle="tab"><g:message code="crmOrder.tab.items.label"/><crm:countIndicator
+            count="${crmOrder.items.size()}"/></a></li>
+    <crm:pluginViews location="tabs" var="view">
+        <crm:pluginTab id="${view.id}" label="${view.label}" count="${view.model?.totalCount}"/>
+    </crm:pluginViews>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane active" id="main">
 
 <div class="row-fluid">
 
@@ -466,6 +502,54 @@
     <crm:button type="link" action="show" id="${crmOrder.id}" icon="icon-remove"
                 label="crmOrder.button.cancel.label"
                 accesskey="b"/>
+</div>
+
+</div>
+
+<div class="tab-pane" id="items">
+    <table id="item-list" class="table">
+        <thead>
+        <tr>
+            <th><g:message code="crmOrderItem.productId.label"/></th>
+            <th><g:message code="crmOrderItem.productName.label"/></th>
+            <!--
+            <th><g:message code="crmOrderItem.comment.label"/></th>
+            -->
+            <th><g:message code="crmOrderItem.quantity.label"/></th>
+            <th><g:message code="crmOrderItem.unit.label"/></th>
+            <th><g:message code="crmOrderItem.price.label"/></th>
+            <th><g:message code="crmOrderItem.discount.label"/></th>
+            <th><g:message code="crmOrderItem.vat.label"/></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <g:each in="${crmOrder.items}" var="item" status="row">
+            <g:render template="item" model="${[bean: item, row: row, metadata: metadata]}"/>
+        </g:each>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="7">
+                <crm:button action="edit" visual="warning" icon="icon-ok icon-white" label="crmOrder.button.update.label"/>
+                <button type="button" class="btn btn-success" id="btn-add-item">
+                    <i class="icon-plus icon-white"></i>
+                    <g:message code="crmOrderItem.button.add.label" default="Add Item"/>
+                </button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+
+</div>
+
+<crm:pluginViews location="tabs" var="view">
+    <div class="tab-pane tab-${view.id}" id="${view.id}">
+        <g:render template="${view.template}" model="${view.model}" plugin="${view.plugin}"/>
+    </div>
+</crm:pluginViews>
+
+</div>
 </div>
 
 </g:form>

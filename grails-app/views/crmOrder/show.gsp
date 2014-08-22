@@ -93,12 +93,12 @@
             <g:if test="${crmOrder.customerName != invoiceAddress?.addressee}">
                 <dt><g:message code="crmOrder.customer.label" default="Customer"/></dt>
                 <dd><g:fieldValue bean="${crmOrder}" field="customerName"/></dd>
+                <g:if test="${crmOrder.customerCompany != invoiceAddress?.addressee}">
+                    <dd><g:fieldValue bean="${crmOrder}" field="customerCompany"/></dd>
+                </g:if>
             </g:if>
 
             <dt><g:message code="crmOrder.invoice.label"/></dt>
-            <g:if test="${crmOrder.customerCompany}">
-                <dd><g:fieldValue bean="${crmOrder}" field="customerCompany"/></dd>
-            </g:if>
             <g:render template="address" model="${[crmContact: customerContact, address: invoiceAddress]}"/>
 
             <g:if test="${crmOrder.customerEmail}">
@@ -217,11 +217,13 @@
     <g:form>
         <g:hiddenField name="id" value="${crmOrder.id}"/>
 
-        <crm:selectionMenu location="crmOrder" visual="primary">
-            <crm:button type="link" controller="crmOrder" action="index"
-                        visual="primary" icon="icon-search icon-white"
-                        label="crmOrder.find.label"/>
-        </crm:selectionMenu>
+        <div class="btn-group">
+            <crm:selectionMenu location="crmOrder" visual="primary">
+                <crm:button type="link" controller="crmOrder" action="index"
+                            visual="primary" icon="icon-search icon-white"
+                            label="crmOrder.find.label"/>
+            </crm:selectionMenu>
+        </div>
 
         <crm:button type="link" action="edit" id="${crmOrder?.id}"
                     group="true" visual="warning" icon="icon-pencil icon-white"

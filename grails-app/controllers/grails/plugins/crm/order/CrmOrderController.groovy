@@ -7,6 +7,7 @@ import grails.plugins.crm.core.WebUtils
 import grails.plugins.crm.core.CrmValidationException
 import org.springframework.dao.DataIntegrityViolationException
 
+import javax.servlet.http.HttpServletResponse
 import java.util.concurrent.TimeoutException
 
 /**
@@ -22,6 +23,8 @@ class CrmOrderController {
     def crmContactService
     def crmTagService
     def userTagService
+
+    def crmProductService // optional
 
     def index() {
         // If any query parameters are specified in the URL, let them override the last query stored in session.
@@ -73,8 +76,8 @@ class CrmOrderController {
 
         if (request.post) {
             try {
-                crmOrder = crmOrderService.save(crmOrder, params)
-            } catch(CrmValidationException e) {
+                crmOrder = crmOrderService.saveOrder(crmOrder, params)
+            } catch (CrmValidationException e) {
                 crmOrder = e[0]
             }
             if (!crmOrder.hasErrors()) {
@@ -120,14 +123,23 @@ class CrmOrderController {
                         [message(code: 'crmOrder.label', default: 'Order')] as Object[],
                         "Another user has updated this Order while you were editing")
             } else {
-                def oldStatus = crmOrder.orderStatus
-
+                def ok = false
                 try {
-                    crmOrder = crmOrderService.save(crmOrder, params)
-                } catch(CrmValidationException e) {
-                    crmOrder = e[0]
+                    crmOrder = crmOrderService.saveOrder(crmOrder, params)
+                    ok = !crmOrder.hasErrors()
+                } catch (CrmValidationException e) {
+                    crmOrder = (CrmOrder) e[0]
+                } catch (Exception e) {
+                    // Re-attach object to this Hibernate session to avoid problems with uninitialized associations.
+                    if (!crmOrder.isAttached()) {
+                        crmOrder.discard()
+                        crmOrder.attach()
+                    }
+                    log.warn("Failed to save crmOrder@$id", e)
+                    flash.error = e.message
                 }
-                if (!crmOrder.hasErrors()) {
+
+                if (ok) {
                     def currentUser = crmSecurityService.currentUser
                     event(for: "crmOrder", topic: "updated", fork: false, data: [id: crmOrder.id, tenant: crmOrder.tenantId, user: currentUser?.username])
                     flash.success = message(code: 'crmOrder.updated.message', args: [message(code: 'crmOrder.label', default: 'Order'), crmOrder.toString()])
@@ -150,6 +162,8 @@ class CrmOrderController {
         if (crmOrder.deliveryType && !metadata.deliveryTypeList.contains(crmOrder.deliveryType)) {
             metadata.deliveryTypeList << crmOrder.deliveryType
         }
+        metadata.vatList = getVatOptions()
+        metadata.allProducts = getProductList(crmOrder)
 
         return [crmOrder: crmOrder, metadata: metadata]
     }
@@ -177,7 +191,7 @@ class CrmOrderController {
     def show(Long id) {
         def crmOrder = CrmOrder.findByIdAndTenantId(id, TenantUtils.tenant)
         if (crmOrder) {
-            return [crmOrder : crmOrder, customerContact: crmOrder.getCustomer(), deliveryContact: crmOrder.getDeliveryContact(),
+            return [crmOrder: crmOrder, customerContact: crmOrder.getCustomer(), deliveryContact: crmOrder.getDeliveryContact(),
                     selection: params.getSelectionURI()]
         } else {
             flash.error = message(code: 'crmOrder.not.found.message', args: [message(code: 'crmOrder.label', default: 'Order'), id])
@@ -220,6 +234,64 @@ class CrmOrderController {
         }
     }
 
+    private List getVatOptions() {
+        getVatList().collect {
+            [label: "${it}%", value: (it / 100).doubleValue()]
+        }
+    }
+
+    private List<Number> getVatList() {
+        grailsApplication.config.crm.currency.vat.list ?: [0]
+    }
+
+    private List getProductList(final CrmOrder crmOrder) {
+        def result
+          // TODO Remove dependency on crmProductService and use synchronous application event to request product list.
+        if (crmProductService != null) {
+            result = crmProductService.list().collect{[id: it.number, label: it.toString()]}
+        } else {
+            result = []
+        }
+        for(item in crmOrder?.items) {
+            if(! result.find{it.id == item.productId}) {
+                result << [id: item.productId, label: item.productName]
+            }
+        }
+        result.sort{it.id}
+    }
+
+    def addItem(Long id) {
+        def crmOrder = id ? crmOrderService.getOrder(id) : null
+        def count = crmOrder?.items?.size() ?: 0
+        def vat = grailsApplication.config.crm.currency.vat.default ?: 0
+        def metadata = [:]
+        metadata.vatList = getVatOptions()
+        metadata.allProducts = getProductList(crmOrder)
+
+        def item = new CrmOrderItem(order: crmOrder, orderIndex: count + 1, quantity: 1, unit: 'st', price: 0, discount: 0, vat: vat)
+        render template: 'item', model: [row: 0, bean: item, metadata: metadata]
+    }
+
+    def deleteItem(Long id) {
+        def item = CrmOrderItem.get(id)
+        if (item) {
+            def order = item.order
+            if (order.tenantId == TenantUtils.tenant) {
+                try {
+                    item.delete(flush: true)
+                    render 'true'
+                } catch (Exception e) {
+                    log.error("Failed to delete CrmOrderItem($id)", e)
+                    render 'false'
+                }
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+        }
+    }
+
     def createFavorite(Long id) {
         def crmOrder = crmOrderService.getOrder(id)
         if (!crmOrder) {
@@ -253,7 +325,7 @@ class CrmOrderController {
                 def name = [it.name, it.email, it.telephone, it.number].findAll { it }.join(', ')
                 def addr = it.address ?: [:]
                 [name, it.id, it.number, it.fullName, it.firstName, it.lastName, it.email, it.telephone,
-                 addr.address1, addr.address2, addr.address3, addr.postalCode, addr.city]
+                        addr.address1, addr.address2, addr.address3, addr.postalCode, addr.city]
             }
         } else {
             result = []

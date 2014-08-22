@@ -3,9 +3,6 @@
     <tr>
         <th><g:message code="crmOrderItem.productId.label"/></th>
         <th><g:message code="crmOrderItem.productName.label"/></th>
-        <!--
-        <th><g:message code="crmOrderItem.comment.label"/></th>
-        -->
         <th><g:message code="crmOrderItem.quantity.label"/></th>
         <th style="text-align:right;"><g:message code="crmOrderItem.price.label"/></th>
         <th style="text-align:center;"><g:message code="crmOrderItem.discount.label"/></th>

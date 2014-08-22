@@ -8,7 +8,7 @@
 
 <body>
 
-<crm:header title="crmContact.list.title" subtitle="crmOrder.totalCount.label"
+<crm:header title="crmOrder.list.title" subtitle="crmOrder.totalCount.label"
             args="[entityName, crmOrderTotal]"/>
 
 <table class="table table-striped">
