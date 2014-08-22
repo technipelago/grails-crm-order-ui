@@ -27,12 +27,10 @@ grails.project.dependency.resolution = {
         compile ":crm-security:2.0.0"
         compile ":crm-ui-bootstrap:2.0.0"
         compile ":crm-tags:2.0.0"
-        //compile ":crm-order:2.0.0"
+        compile ":crm-order:2.0.0"
 
         compile ":decorator:1.1"
         compile ":user-tag:0.6"
         compile ":selection:0.9.7"
     }
 }
-
-grails.plugin.location.'crm-order' = '../crm-order'
