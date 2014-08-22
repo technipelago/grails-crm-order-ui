@@ -52,6 +52,10 @@ image::order-list.png[The order list]
 
 You can click on any order to show details for that order.
 
+The `Export` button shows the *print/export* page but no layouts are provided by this plugin.
+You must add an event `@Listener` in an application service that listens for the *crmOrder.exportLayout* event and return layout definitions.
+Look at https://github.com/technipelago/grails-crm-order-ui/blob/master/grails-app/controllers/grails/plugins/crm/order/CrmOrderController.groovy#L202[the source^] for `CrmOrderController#export()` for more information.
+
 === Order details
 
 The order details page `crmOrder/show` show all details for an order.
@@ -67,6 +71,8 @@ To edit order details you hit the `Edit` button. This will display the edit page
 Here you can alter values and then hit `Save` to store the new values in the database.
 
 image::order-edit-1.png[Edit order details]
+
+Order items are listed on a separate tab. Items can be edited, added and deleted from this tab.
 
 image::order-edit-2.png[Edit order items]
 
