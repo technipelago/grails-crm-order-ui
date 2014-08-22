@@ -26,7 +26,8 @@ class CrmOrderUiGrailsPlugin {
     def author = "Göran Ehrsson"
     def authorEmail = "goran@technipelago.se"
     def description = '''\
-GR8 CRM Order Management User Interface
+This plugin is a companion plugin to the crm-order plugin.
+It provides a Twitter Bootstrap based user interface for order management in GR8 CRM applications.
 '''
     def documentation = "http://gr8crm.github.io/plugins/crm-order-ui/"
     def license = "APACHE"
