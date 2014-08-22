@@ -32,6 +32,43 @@ that focus on one specific domain, for example *contact*, *project* or *document
 
 == Order Management User Interface Plugin
 
+The `crm-order-ui` plugin is a companion plugin to the `crm-order` plugin.
+It provides a Twitter Bootstrap based user interface for order management.
+
+=== Search orders
+
+To query for orders you visit `crmIndex/index` which will show the query form.
+
+image::order-find.png[The query form]
+
+You can enter query values in any field and then hit the `Search` button to search for orders matching your query.
+If you don't enter any query value all orders will be included in the search result.
+
+If the query result contains more than one order, an order list will be displayed. If the query result contains
+exactly one order, then details for that order will be displayed.
+I.e. it will skip the `list` view and go directly to the `show` view.
+
+image::order-list.png[The order list]
+
+You can click on any order to show details for that order.
+
+=== Order details
+
+The order details page `crmOrder/show` show all details for an order.
+Here you will find order number, customer name, invoice and delivery addresses and more.
+
+image::order-show.png[Order details]
+
+If the `crm-tags` plugin is installed you can see existing tags and add new tags to an order.
+
+=== Edit order details
+
+To edit order details you hit the `Edit` button. This will display the edit page `crmOrder/edit`.
+Here you can alter values and then hit `Save` to store the new values in the database.
+
+image::order-edit-1.png[Edit order details]
+
+image::order-edit-2.png[Edit order items]
 
 == Changes
 
