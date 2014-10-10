@@ -10,11 +10,12 @@
 
 <crm:header title="crmOrder.export.title" subtitle="crmOrder.export.subtitle" args="[entityName]"/>
 
-<g:each in="${layouts}" var="l">
+<g:each in="${layouts?.sort{it.name}}" var="l">
     <g:form action="export" class="well">
         <input type="hidden" name="q" value="${select.encode(selection: selection)}"/>
         <input type="hidden" name="namespace" value="${l.namespace}"/>
         <input type="hidden" name="topic" value="${l.topic}"/>
+        <input type="hidden" name="template" value="${l.template}"/>
 
         <div class="row-fluid">
             <div class="span7">
