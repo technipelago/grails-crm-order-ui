@@ -1,6 +1,8 @@
 <%@ page defaultCodec="html" %>
 <tr>
     <td>
+        <input type="hidden" name="items[${row}].id" value="${bean.id}"/>
+
         <input type="hidden" name="items[${row}].orderIndex" value="${bean.orderIndex ?: 0}"/>
 
         <g:select name="items[${row}].productId" from="${metadata.allProducts}"
