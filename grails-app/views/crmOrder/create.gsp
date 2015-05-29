@@ -6,6 +6,15 @@
     <title><g:message code="crmOrder.create.title" args="[entityName]"/></title>
     <r:require modules="datepicker,autocomplete"/>
     <script type="text/javascript">
+        function deleteItem(source, id) {
+            if(id) {
+                $.post("${createLink(action: 'deleteItem')}", {id: id}, function(data) {
+                    deleteTableRow(source);
+                });
+            } else {
+                deleteTableRow(source);
+            }
+        }
         jQuery(document).ready(function () {
             <crm:datepicker/>
 
@@ -97,6 +106,16 @@
                     $("input[name='reference4']").val(data[5]); // Email
                 }
             });
+
+            $("#btn-add-item").click(function(ev) {
+                $.get("${createLink(action: 'addItem', id: crmOrder.id)}", function(markup) {
+                    var table = $("#item-list");
+                    var html = $(markup);
+                    $("tbody", table).append(html);
+                    table.renumberInputNames();
+                    $(":input:enabled:first", html).focus();
+                });
+            });
         });
     </script>
 </head>
@@ -121,274 +140,306 @@
 
 <g:form action="create">
 
-<div class="row-fluid">
+    <div class="tabbable">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmOrder.tab.main.label"/></a>
+            </li>
+            <li><a href="#items" data-toggle="tab"><g:message code="crmOrder.tab.items.label"/><crm:countIndicator
+                    count="${crmOrder.items?.size()}"/></a></li>
+            <crm:pluginViews location="tabs" var="view">
+                <crm:pluginTab id="${view.id}" label="${view.label}" count="${view.model?.totalCount}"/>
+            </crm:pluginViews>
+        </ul>
 
-<div class="span3">
-    <div class="row-fluid">
+        <div class="tab-content">
+            <div class="tab-pane active" id="main">
 
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.number.label"/>
-            </label>
+                <div class="row-fluid">
+                    <div class="span3">
 
-            <div class="controls">
-                <g:textField name="number" value="${crmOrder.number}" class="span8" autofocus=""/>
-            </div>
-        </div>
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.number.label"/>
+                            </label>
 
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.orderDate.label"/>
-            </label>
+                            <div class="controls">
+                                <g:textField name="number" value="${crmOrder.number}" class="span8" autofocus=""/>
+                            </div>
+                        </div>
 
-            <div class="controls">
-                <div class="inline input-append date"
-                     data-date="${formatDate(type: 'date', date: crmOrder.orderDate ?: new Date())}">
-                    <g:textField name="orderDate" class="span10" size="10"
-                                 value="${formatDate(type: 'date', date: crmOrder.orderDate)}"/><span
-                        class="add-on"><i
-                            class="icon-th"></i></span>
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.orderDate.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <div class="inline input-append date"
+                                     data-date="${formatDate(type: 'date', date: crmOrder.orderDate ?: new Date())}">
+                                    <g:textField name="orderDate" class="span10" size="10"
+                                                 value="${formatDate(type: 'date', date: crmOrder.orderDate)}"/><span
+                                        class="add-on"><i
+                                            class="icon-th"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.deliveryDate.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <div class="inline input-append date"
+                                     data-date="${formatDate(type: 'date', date: crmOrder.deliveryDate ?: new Date())}">
+                                    <g:textField name="deliveryDate" class="span10" size="10"
+                                                 value="${formatDate(type: 'date', date: crmOrder.deliveryDate)}"/><span
+                                        class="add-on"><i
+                                            class="icon-th"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.orderStatus.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <g:select name="orderStatus.id" from="${metadata.orderStatusList}"
+                                          value="${crmOrder.orderStatus?.id}"
+                                          optionKey="id" class="span12"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.orderType.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <g:select name="orderType.id" from="${metadata.orderTypeList}"
+                                          value="${crmOrder.orderType?.id}"
+                                          optionKey="id" class="span12"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.reference1.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <g:textField name="reference1" value="${crmOrder.reference1}" class="span12"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.reference2.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <g:textField name="reference2" value="${crmOrder.reference2}" class="span12"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">
+                                <g:message code="crmOrder.campaign.label"/>
+                            </label>
+
+                            <div class="controls">
+                                <g:textField name="campaign" value="${crmOrder.campaign}" class="span12"/>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="span3">
+                        <div class="row-fluid">
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.customerName.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="customerFirstName" value="${crmOrder.customerFirstName}"
+                                                 class="span5" autocomplete="off"/>
+                                    <g:textField name="customerLastName" value="${crmOrder.customerLastName}"
+                                                 class="span7" autocomplete="off"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.customerCompany.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="customerCompany" value="${crmOrder.customerCompany}"
+                                                 class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.invoice.address1.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="invoice.address1" value="${invoiceAddress?.address1}"
+                                                 class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.invoice.address2.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="invoice.address2" value="${invoiceAddress?.address2}"
+                                                 class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmAddress.postalAddress.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="invoice.postalCode" value="${invoiceAddress?.postalCode}"
+                                                 class="span4"/>
+                                    <g:textField name="invoice.city" value="${invoiceAddress?.city}" class="span8"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.customerTel.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="customerTel" value="${crmOrder.customerTel}" class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.customerEmail.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="customerEmail" value="${crmOrder.customerEmail}" class="span12"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="span3">
+                        <div class="row-fluid">
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.deliveryType.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:select name="deliveryType.id" from="${metadata.deliveryTypeList}"
+                                              value="${crmOrder.deliveryType?.id}"
+                                              optionKey="id" class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.delivery.addressee.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="delivery.addressee" value="${deliveryAddress?.addressee}"
+                                                 class="span12" autocomplete="off"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.delivery.address1.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="delivery.address1" value="${deliveryAddress?.address1}"
+                                                 class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.delivery.address2.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="delivery.address2" value="${deliveryAddress?.address2}"
+                                                 class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmAddress.postalAddress.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="delivery.postalCode" value="${deliveryAddress?.postalCode}"
+                                                 class="span4"/>
+                                    <g:textField name="delivery.city" value="${deliveryAddress?.city}" class="span8"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.reference3.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="reference3" value="${crmOrder.reference3}" class="span12"/>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">
+                                    <g:message code="crmOrder.reference4.label"/>
+                                </label>
+
+                                <div class="controls">
+                                    <g:textField name="reference4" value="${crmOrder.reference4}" class="span12"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.deliveryDate.label"/>
-            </label>
 
-            <div class="controls">
-                <div class="inline input-append date"
-                     data-date="${formatDate(type: 'date', date: crmOrder.deliveryDate ?: new Date())}">
-                    <g:textField name="deliveryDate" class="span10" size="10"
-                                 value="${formatDate(type: 'date', date: crmOrder.deliveryDate)}"/><span
-                        class="add-on"><i
-                            class="icon-th"></i></span>
+                <div class="form-actions">
+                    <crm:button visual="success" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
                 </div>
+
             </div>
-        </div>
 
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.orderStatus.label"/>
-            </label>
-
-            <div class="controls">
-                <g:select name="orderStatus.id" from="${metadata.orderStatusList}"
-                          value="${crmOrder.orderStatus?.id}"
-                          optionKey="id" class="span12"/>
+            <div class="tab-pane" id="items">
+                <tmpl:itemsEdit bean="${crmOrder}" metadata="${metadata}"/>
             </div>
-        </div>
 
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.orderType.label"/>
-            </label>
+            <crm:pluginViews location="tabs" var="view">
+                <div class="tab-pane tab-${view.id}" id="${view.id}">
+                    <g:render template="${view.template}" model="${view.model}" plugin="${view.plugin}"/>
+                </div>
+            </crm:pluginViews>
 
-            <div class="controls">
-                <g:select name="orderType.id" from="${metadata.orderTypeList}"
-                          value="${crmOrder.orderType?.id}"
-                          optionKey="id" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.reference1.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="reference1" value="${crmOrder.reference1}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.reference2.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="reference2" value="${crmOrder.reference2}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.campaign.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="campaign" value="${crmOrder.campaign}" class="span12"/>
-            </div>
         </div>
     </div>
-</div>
-
-<div class="span3">
-    <div class="row-fluid">
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.customerName.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="customerFirstName" value="${crmOrder.customerFirstName}" class="span5" autocomplete="off"/>
-                <g:textField name="customerLastName" value="${crmOrder.customerLastName}" class="span7" autocomplete="off"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.customerCompany.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="customerCompany" value="${crmOrder.customerCompany}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.invoice.address1.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="invoice.address1" value="${invoiceAddress?.address1}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.invoice.address2.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="invoice.address2" value="${invoiceAddress?.address2}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmAddress.postalAddress.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="invoice.postalCode" value="${invoiceAddress?.postalCode}" class="span4"/>
-                <g:textField name="invoice.city" value="${invoiceAddress?.city}" class="span8"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.customerTel.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="customerTel" value="${crmOrder.customerTel}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.customerEmail.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="customerEmail" value="${crmOrder.customerEmail}" class="span12"/>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="span3">
-    <div class="row-fluid">
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.deliveryType.label"/>
-            </label>
-
-            <div class="controls">
-                <g:select name="deliveryType.id" from="${metadata.deliveryTypeList}"
-                          value="${crmOrder.deliveryType?.id}"
-                          optionKey="id" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.delivery.addressee.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="delivery.addressee" value="${deliveryAddress?.addressee}"
-                             class="span12" autocomplete="off"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.delivery.address1.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="delivery.address1" value="${deliveryAddress?.address1}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.delivery.address2.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="delivery.address2" value="${deliveryAddress?.address2}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmAddress.postalAddress.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="delivery.postalCode" value="${deliveryAddress?.postalCode}" class="span4"/>
-                <g:textField name="delivery.city" value="${deliveryAddress?.city}" class="span8"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.reference3.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="reference3" value="${crmOrder.reference3}" class="span12"/>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                <g:message code="crmOrder.reference4.label"/>
-            </label>
-
-            <div class="controls">
-                <g:textField name="reference4" value="${crmOrder.reference4}" class="span12"/>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="span3">
-</div>
-
-</div>
-
-
-<div class="form-actions">
-    <crm:button visual="success" icon="icon-ok icon-white" label="crmOrder.button.save.label"/>
-</div>
 
 </g:form>
 
