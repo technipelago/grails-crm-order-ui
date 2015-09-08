@@ -237,7 +237,7 @@
                     permission="crmOrder:create"/>
 
         <div class="btn-group">
-            <select:link action="export" accesskey="p" params="${[namespace:'crmOrder']}" selection="${new URI('bean://crmOrderService/list?id=' + crmOrder.id)}" class="btn btn-info">
+            <select:link action="export" accesskey="p" params="${[ns:'crmOrder']}" selection="${new URI('bean://crmOrderService/list?id=' + crmOrder.id)}" class="btn btn-info">
                 <i class="icon-print icon-white"></i>
                 <g:message code="crmOrder.button.export.label" default="Print/Export"/>
             </select:link>
