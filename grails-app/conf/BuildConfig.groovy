@@ -24,7 +24,7 @@ grails.project.dependency.resolution = {
 		test(":codenarc:0.22") { export = false }
 
         compile ":decorator:1.1"
-        compile ":user-tag:0.6"
+        compile ":user-tag:1.0"
         compile ":selection:0.9.8"
 
 		compile ":crm-order:2.4.1"
