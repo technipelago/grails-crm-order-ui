@@ -78,6 +78,7 @@ image::order-edit-2.png[Edit order items]
 
 == Changes
 
+2.4.1:: Some GSP pages rendered amount in SEK instead of correct order currency
 2.4.0:: First version to support Grails 2.4.4
 2.0.0:: First public release
 
