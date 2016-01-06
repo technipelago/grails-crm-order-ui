@@ -439,11 +439,11 @@
         <dl>
             <dt><g:message code="crmOrder.totalAmount.label" default="Total Amount"/></dt>
 
-            <dd><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                 number="${crmOrder.totalAmount}"/></dd>
             <dt><g:message code="crmOrder.totalVat.label" default="VAT"/></dt>
 
-            <dd><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                 number="${crmOrder.totalVat}"/></dd>
 
             <g:set var="cent"
@@ -451,13 +451,13 @@
             <g:if test="${cent > 0.001}">
                 <dt><g:message code="crmOrder.cent.label" default="Öresutjämning"/></dt>
 
-                <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}"
+                <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}" number="${cent}"
                                     maxFractionDigits="2"/>
                 </dd>
             </g:if>
             <dt><g:message code="crmOrder.totalAmountVAT.label" default="Totals inc. VAT"/></dt>
 
-            <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                                            number="${crmOrder.totalAmountVAT}"
                                                            maxFractionDigits="0"/></h3>
             </dd>
@@ -485,7 +485,7 @@
             <g:if test="${crmOrder.payedAmount}">
                 <dt><g:message code="crmOrder.payedAmount.label" default="Payed Amount"/></dt>
 
-                <dd><g:formatNumber type="currency" currencyCode="SEK"
+                <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                     number="${crmOrder.payedAmount}"/></dd>
             </g:if>
         </dl>

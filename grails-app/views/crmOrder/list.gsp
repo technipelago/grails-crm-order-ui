@@ -63,7 +63,7 @@
                 ${fieldValue(bean: crmOrder, field: "delivery")}
             </td>
             <td style="text-align: right;">
-                <g:formatNumber type="currency" currencyCode="SEK" number="${crmOrder.totalAmountVAT}"
+                <g:formatNumber type="currency" currencyCode="${crmOrder.currency}" number="${crmOrder.totalAmountVAT}"
                                 maxFractionDigits="0"/>
             </td>
         </tr>

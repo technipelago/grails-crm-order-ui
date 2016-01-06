@@ -156,28 +156,28 @@
         <dl>
             <dt><g:message code="crmOrder.totalAmount.label" default="Amount ex. VAT"/></dt>
 
-            <dd><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                 number="${crmOrder.totalAmount}"/></dd>
             <dt><g:message code="crmOrder.totalVat.label" default="VAT"/></dt>
 
-            <dd><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                 number="${crmOrder.totalVat}"/></dd>
 
             <dt><g:message code="crmOrder.totalAmountVAT.label" default="Amount incl. VAT"/></dt>
 
-            <dd><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                 number="${crmOrder.totalAmountVAT}"/></dd>
 
             <g:set var="cent" value="${Math.round(crmOrder.totalAmountVAT).intValue() - crmOrder.totalAmountVAT}"/>
             <g:if test="${cent > 0.005 || cent < -0.005}">
                 <dt><g:message code="crmOrder.cent.label" default="Öresutjämning"/></dt>
 
-                <dd><g:formatNumber type="currency" currencyCode="SEK" number="${cent}"/>
+                <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}" number="${cent}"/>
                 </dd>
             </g:if>
             <dt><g:message code="crmOrder.paymentAmount.label" default="Totals inc. VAT"/></dt>
 
-            <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="SEK"
+            <dd><h3 style="margin-top: 0;"><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                                            number="${crmOrder.totalAmountVAT}"
                                                            maxFractionDigits="0"/></h3>
             </dd>
@@ -205,7 +205,7 @@
             <g:if test="${crmOrder.payedAmount}">
                 <dt><g:message code="crmOrder.payedAmount.label" default="Payed Amount"/></dt>
 
-                <dd><g:formatNumber type="currency" currencyCode="SEK"
+                <dd><g:formatNumber type="currency" currencyCode="${crmOrder.currency}"
                                     number="${crmOrder.payedAmount}"/></dd>
             </g:if>
         </dl>
@@ -285,7 +285,7 @@
 </div>
 
 <div class="tab-pane" id="items">
-    <g:render template="items" model="${[list: crmOrder.items]}"/>
+    <g:render template="items" model="${[bean: crmOrder, list: crmOrder.items]}"/>
 </div>
 
 <crm:pluginViews location="tabs" var="view">
